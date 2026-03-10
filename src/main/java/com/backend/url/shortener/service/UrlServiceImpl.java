@@ -1,5 +1,6 @@
 package com.backend.url.shortener.service;
 
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.backend.url.shortener.model.UrlMapping;
 import com.backend.url.shortener.repository.UrlRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,13 @@ public class UrlServiceImpl implements UrlService{
         urlMapping.setExpirationTime(LocalDateTime.now().plusDays(7));
         urlRepository.save(urlMapping);
 
-        String shortUrl = "http://localhost:8080/" + shortCode;
+        String shortUrl =
+                ServletUriComponentsBuilder
+                        .fromCurrentContextPath()
+                        .path("/s/")
+                        .path(shortCode)
+                        .toUriString();
+
 
         return new ResponseEntity<>(shortUrl,HttpStatus.CREATED);
     }

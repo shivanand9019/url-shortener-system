@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Shortener</title>
+    <style>
+        body{
+            font-family: Arial,serif;
+            text-align:center;
+            margin-top:100px;
+        }
+
+        input{
+            width:300px;
+            padding:10px;
+        }
+
+        button{
+            padding:10px;
+            margin-left:10px;
+        }
+
+        #result{
+            margin-top:20px;
+            font-weight:bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>URL Shortener</h2>
+
+<input id="urlInput" placeholder="Enter long URL">
+<button onclick="shorten()">Generate</button>
+
+<p id="result"></p>
+
+<script>
+    function shorten(){
+
+        const url = document.getElementById("urlInput").value;
+
+        fetch("/api/shorten",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({url:url})
+        })
+            .then(res => res.text())
+            .then(data=>{
+                document.getElementById("result").innerHTML =
+                    "<a href='" + data + "' target='_blank'>" +data + "</a>";
+            });
+
+    }
+</script>
+
+</body>
+</html>
