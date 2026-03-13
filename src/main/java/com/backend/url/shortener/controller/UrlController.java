@@ -30,8 +30,8 @@ public class UrlController {
                 .build();
 
    }
-   @GetMapping("/")
-    public String home(){
-        return "URL SHortener API Running";
-   }
+//   @GetMapping("/")
+//    public String home(){
+//        return "URL SHortener API Running";
+//   }
 }
