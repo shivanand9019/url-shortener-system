@@ -1,5 +1,6 @@
 package com.backend.url.shortener.controller;
 
+import com.backend.url.shortener.dto.AnalyticsResponse;
 import com.backend.url.shortener.dto.UrlRequest;
 import com.backend.url.shortener.service.UrlService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,11 @@ public class UrlController {
                 .location(URI.create(originalUrl))
                 .build();
 
+   }
+   @GetMapping("/analytics/{shortCode}")
+    public ResponseEntity<AnalyticsResponse> getAnalytics(@PathVariable String shortCode){
+
+        return  urlService.getAnalytics(shortCode);
    }
 //   @GetMapping("/")
 //    public String home(){

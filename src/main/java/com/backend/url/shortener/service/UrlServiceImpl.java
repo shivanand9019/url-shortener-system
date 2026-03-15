@@ -1,5 +1,6 @@
 package com.backend.url.shortener.service;
 
+import com.backend.url.shortener.dto.AnalyticsResponse;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.backend.url.shortener.model.UrlMapping;
 import com.backend.url.shortener.repository.UrlRepository;
@@ -49,5 +50,22 @@ public class UrlServiceImpl implements UrlService{
 
 
         return new ResponseEntity<>(shortUrl,HttpStatus.CREATED);
+    }
+
+    @Override
+    public ResponseEntity<AnalyticsResponse> getAnalytics(String shortCode) {
+
+        UrlMapping urlMapping = urlRepository.findByShortCode(shortCode).orElseThrow( () -> new RuntimeException(String.valueOf(HttpStatus.NOT_FOUND)));
+
+        AnalyticsResponse response = new AnalyticsResponse();
+        response.setOriginalUrl(urlMapping.getOriginalUrl());
+        response.setShortCode(urlMapping.getShortCode());
+        response.setClickCount(urlMapping.getClickCount());
+        response.setCreatedAt(urlMapping.getCreatedAt());
+
+
+
+
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 }
