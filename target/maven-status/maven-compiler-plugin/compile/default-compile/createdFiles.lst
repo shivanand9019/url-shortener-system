@@ -1,4 +1,5 @@
 com/backend/url/shortener/UrlshortenerApplication.class
+com/backend/url/shortener/dto/AnalyticsResponse.class
 com/backend/url/shortener/dto/UrlRequest.class
 com/backend/url/shortener/service/UrlService.class
 com/backend/url/shortener/repository/UrlRepository.class
