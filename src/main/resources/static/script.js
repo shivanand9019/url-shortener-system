@@ -18,3 +18,17 @@ function shorten(){
 
 }
 
+async function getAnalytics(){
+
+    const shortCode = document.getElementById("shortCode").value;
+    const response = await fetch("/analytics/ "+ shortCode);
+
+    const data = await response.json();
+
+
+    document.getElementById("originalUrl").innerText = data.originalUrl;
+    document.getElementById("shortUrl").innerText = data.shortCode;
+    document.getElementById("clickCount").innerText = data.clickCount;
+    document.getElementById("createdAt").innerText = data.createdAt;
+
+}
