@@ -20,8 +20,8 @@ public class UrlController {
     }
 
     @GetMapping("/s/{shortCode}")
-    public ResponseEntity<Void> shortUrl(@PathVariable String shortCode){
-        String originalUrl = urlService.shortUrl(shortCode);
+    public ResponseEntity<Void> getShortUrl(@PathVariable String shortCode){
+        String originalUrl = urlService.getShortUrl(shortCode);
 
 
         return ResponseEntity

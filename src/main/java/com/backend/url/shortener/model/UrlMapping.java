@@ -16,7 +16,7 @@ public class UrlMapping {
     private String shortCode;
     private String originalUrl;
     private LocalDateTime createdAt;
-    private Integer clickCount;
+    private Long clickCount;
     private LocalDateTime expirationTime;
 
 }

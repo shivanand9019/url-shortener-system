@@ -17,10 +17,16 @@ public class UrlServiceImpl implements UrlService{
     @Autowired
     private UrlRepository urlRepository;
     @Override
-    public String shortUrl(String shortCode) {
-        Optional<UrlMapping> mapping = urlRepository.findByShortCode(shortCode);
-        return mapping.map(UrlMapping::getOriginalUrl)
-                .orElseThrow(()-> new RuntimeException("URL not found"));
+    public String getShortUrl(String shortCode) {
+        UrlMapping mapping = urlRepository
+                .findByShortCode(shortCode)
+                .orElseThrow(() -> new RuntimeException("URL not found"));
+
+        mapping.setClickCount(mapping.getClickCount()+1);
+        urlRepository.save(mapping);
+
+        return mapping.getOriginalUrl();
+
 
     }
     @Override
@@ -29,7 +35,7 @@ public class UrlServiceImpl implements UrlService{
         UrlMapping urlMapping = new UrlMapping();
         urlMapping.setOriginalUrl(originalUrl);
         urlMapping.setShortCode(shortCode);
-        urlMapping.setClickCount(0);
+        urlMapping.setClickCount(0L);
         urlMapping.setCreatedAt(LocalDateTime.now());
         urlMapping.setExpirationTime(LocalDateTime.now().plusDays(7));
         urlRepository.save(urlMapping);

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface UrlService {
 
-    public String shortUrl(String shortCode);
+    public String getShortUrl(String shortCode);
 
 
     public ResponseEntity<String> createShortUrl(String originalUrl);
