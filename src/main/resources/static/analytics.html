@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analytics Dashboard</title>
+
+</head>
+
+<body>
+
+<h2>Analytics Dashboard</h2>
+<hr>
+<label>Enter Short Code</label><br><br>
+<label for="shortCode"></label><input type="text" id="shortCode" placeholder="abc123">
+<button onclick="getAnalytics()">View Analytics</button>
+
+<hr>
+
+<h3>Analytics Results</h3>
+
+<p><b>Original URL:</b><span id="originalUrl"></span></p>
+<p><b>Short Code:</b><span id="shortUrl"></span></p>
+<p><b>Click Count:</b><span id="clickCount"></span></p>
+<p><b>Creation Date:</b><span id="createdAt"></span></p>
+<hr>
+<script src="script.js"></script>
+</body>
+</html>
