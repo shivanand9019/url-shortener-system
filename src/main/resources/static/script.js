@@ -21,7 +21,7 @@ function shorten(){
 async function getAnalytics(){
 
     const shortCode = document.getElementById("shortCode").value;
-    const response = await fetch("/analytics/ "+ shortCode);
+    const response = await fetch("/analytics/"+ shortCode);
 
     const data = await response.json();
 
