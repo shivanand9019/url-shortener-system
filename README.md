@@ -34,7 +34,8 @@ https://your-app-link.com
 ## Screenshots
 
 Homepage
-[homepage.png](/screenshots/homepage.png)
+
+![homepage.png](/screenshots/homepage.png)
 
 screenshots/homepage.png
 
