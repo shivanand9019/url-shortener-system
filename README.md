@@ -34,12 +34,14 @@ https://your-app-link.com
 ## Screenshots
 
 Homepage
+[homepage.png](/screenshots/homepage.png)
+
 screenshots/homepage.png
 
 Example:
 
-"Homepage" (screenshots/homepage.png)
-![homepage.png](/screenshots/homepage.png)
+"Homepage" 
+(screenshots/homepage.png)
 
 ---
 
