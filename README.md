@@ -34,9 +34,6 @@ https://your-app-link.com
 ## Screenshots
 
 Homepage
-
-Add your homepage screenshot here.
-
 screenshots/homepage.png
 
 Example:
