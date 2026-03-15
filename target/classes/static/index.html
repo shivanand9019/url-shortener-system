@@ -35,26 +35,10 @@
 
 <p id="result"></p>
 
-<script>
-    function shorten(){
+<hr>
 
-        const url = document.getElementById("urlInput").value;
+<button onclick="window.location.href='/analytics.html'"> Go to Analytics</button>
 
-        fetch("/api/shorten",{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({url:url})
-        })
-            .then(res => res.text())
-            .then(data=>{
-                document.getElementById("result").innerHTML =
-                    "<a href='" + data + "' target='_blank'>" +data + "</a>";
-            });
-
-    }
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
