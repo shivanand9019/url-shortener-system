@@ -12,7 +12,7 @@
         input{
             width:300px;
             padding:10px;
-        }
+        }x
 
         button{
             padding:10px;
@@ -35,26 +35,11 @@
 
 <p id="result"></p>
 
-<script>
-    function shorten(){
+<hr>
 
-        const url = document.getElementById("urlInput").value;
+<a href="/analytics.html">Open Analytics Dashboard</a>
 
-        fetch("/api/shorten",{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({url:url})
-        })
-            .then(res => res.text())
-            .then(data=>{
-                document.getElementById("result").innerHTML =
-                    "<a href='" + data + "' target='_blank'>" +data + "</a>";
-            });
 
-    }
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
