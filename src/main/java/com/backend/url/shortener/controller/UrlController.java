@@ -17,7 +17,7 @@ public class UrlController {
 
     @PostMapping("/api/shorten")
     public ResponseEntity<String> createShortUrl(@RequestBody UrlRequest urlRequest){
-        return urlService.createShortUrl(urlRequest.getUrl());
+        return urlService.createShortUrl(urlRequest.getUrl(),urlRequest.getCustomCode());
     }
 
     @GetMapping("/s/{shortCode}")

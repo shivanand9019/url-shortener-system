@@ -10,7 +10,7 @@ public interface UrlService {
     public String getShortUrl(String shortCode);
 
 
-    public ResponseEntity<String> createShortUrl(String originalUrl);
+    public ResponseEntity<String> createShortUrl(String originalUrl,String customCode);
 
     ResponseEntity<AnalyticsResponse> getAnalytics(String shortCode);
 }

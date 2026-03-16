@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -31,8 +32,24 @@ public class UrlServiceImpl implements UrlService{
 
     }
     @Override
-    public ResponseEntity<String> createShortUrl(String originalUrl) {
-        String shortCode = UUID.randomUUID().toString().substring(0,8);
+    public ResponseEntity<String> createShortUrl(String originalUrl,String customCode) {
+
+   String shortCode;
+   if(customCode!=null && !customCode.isBlank()) {
+       Optional<UrlMapping> existing = urlRepository.findByShortCode(customCode);
+       if (existing.isPresent()) {
+           return ResponseEntity
+                   .status(HttpStatus.BAD_REQUEST)
+                   .body("Custom short code already exists");
+
+       }
+
+       shortCode = customCode;
+   }
+   else{
+       shortCode = generateShortCode();
+   }
+
         UrlMapping urlMapping = new UrlMapping();
         urlMapping.setOriginalUrl(originalUrl);
         urlMapping.setShortCode(shortCode);
@@ -52,6 +69,15 @@ public class UrlServiceImpl implements UrlService{
         return new ResponseEntity<>(shortUrl,HttpStatus.CREATED);
     }
 
+    private String generateShortCode(){
+        String chars = "abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random = new Random();
+        StringBuilder shortCode  =new StringBuilder();
+        for(int i=0;i<6;i++){
+            shortCode.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return shortCode.toString();
+    }
     @Override
     public ResponseEntity<AnalyticsResponse> getAnalytics(String shortCode) {
 
