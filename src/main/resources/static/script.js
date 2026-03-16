@@ -1,6 +1,7 @@
 function shorten(){
 
     const url = document.getElementById("urlInput").value;
+    const customCode= document.getElementById("customCode").value;
 
 
     fetch("/api/shorten",{
@@ -8,7 +9,11 @@ function shorten(){
         headers:{
             "Content-Type":"application/json"
         },
-        body:JSON.stringify({url:url})
+        body:JSON.stringify({
+            url: url,
+            customCode:customCode
+
+        })
     })
         .then(res => res.text())
         .then(data=>{
