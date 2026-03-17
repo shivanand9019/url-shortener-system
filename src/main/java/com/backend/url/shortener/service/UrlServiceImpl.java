@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 
 @Service
 public class UrlServiceImpl implements UrlService{
@@ -24,6 +23,10 @@ public class UrlServiceImpl implements UrlService{
                 .findByShortCode(shortCode)
                 .orElseThrow(() -> new RuntimeException("URL not found"));
 
+
+        if(mapping.getExpirationTime()!=null && LocalDateTime.now().isAfter(mapping.getExpirationTime())){
+            throw new RuntimeException("URL has Expired");
+        }
         mapping.setClickCount(mapping.getClickCount()+1);
         urlRepository.save(mapping);
 
@@ -32,9 +35,15 @@ public class UrlServiceImpl implements UrlService{
 
     }
     @Override
-    public ResponseEntity<String> createShortUrl(String originalUrl,String customCode) {
+    public ResponseEntity<String> createShortUrl(String originalUrl,String customCode,LocalDateTime expirationTime) {
 
+        if(originalUrl==null || originalUrl.isBlank()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("URL cannot be empty");
+        }
    String shortCode;
+
+
    if(customCode!=null && !customCode.isBlank()) {
        Optional<UrlMapping> existing = urlRepository.findByShortCode(customCode);
        if (existing.isPresent()) {
@@ -47,15 +56,21 @@ public class UrlServiceImpl implements UrlService{
        shortCode = customCode;
    }
    else{
-       shortCode = generateShortCode();
+       do {
+           shortCode = generateShortCode();
+       }while(urlRepository.findByShortCode(shortCode).isPresent());
    }
+
+
+
+
 
         UrlMapping urlMapping = new UrlMapping();
         urlMapping.setOriginalUrl(originalUrl);
         urlMapping.setShortCode(shortCode);
         urlMapping.setClickCount(0L);
         urlMapping.setCreatedAt(LocalDateTime.now());
-        urlMapping.setExpirationTime(LocalDateTime.now().plusDays(7));
+        urlMapping.setExpirationTime(expirationTime);
         urlRepository.save(urlMapping);
 
         String shortUrl =
@@ -64,6 +79,8 @@ public class UrlServiceImpl implements UrlService{
                         .path("/s/")
                         .path(shortCode)
                         .toUriString();
+
+
 
 
         return new ResponseEntity<>(shortUrl,HttpStatus.CREATED);
@@ -81,7 +98,8 @@ public class UrlServiceImpl implements UrlService{
     @Override
     public ResponseEntity<AnalyticsResponse> getAnalytics(String shortCode) {
 
-        UrlMapping urlMapping = urlRepository.findByShortCode(shortCode).orElseThrow( () -> new RuntimeException(String.valueOf(HttpStatus.NOT_FOUND)));
+        UrlMapping urlMapping = urlRepository.
+                findByShortCode(shortCode).orElseThrow( () -> new RuntimeException("URL not Found"));
 
         AnalyticsResponse response = new AnalyticsResponse();
         response.setOriginalUrl(urlMapping.getOriginalUrl());
