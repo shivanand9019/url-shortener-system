@@ -2,6 +2,7 @@ function shorten(){
 
     const url = document.getElementById("urlInput").value;
     const customCode= document.getElementById("customCode").value;
+    const expirationTime= document.getElementById("expirationTime").value;
 
 
     fetch("/api/shorten",{
@@ -11,7 +12,9 @@ function shorten(){
         },
         body:JSON.stringify({
             url: url,
-            customCode:customCode
+            customCode:customCode,
+            expirationTime:expirationTime
+
 
         })
     })
@@ -35,5 +38,6 @@ async function getAnalytics(){
     document.getElementById("shortUrl").innerText = data.shortCode;
     document.getElementById("clickCount").innerText = data.clickCount;
     document.getElementById("createdAt").innerText = data.createdAt;
+    document.getElementById("expirationTime").innerText = data.expirationTime;
 
 }
