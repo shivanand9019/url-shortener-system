@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -19,19 +21,34 @@ public class UrlServiceImpl implements UrlService{
     private UrlRepository urlRepository;
     @Override
     public String getShortUrl(String shortCode) {
-        UrlMapping mapping = urlRepository
-                .findByShortCode(shortCode)
-                .orElseThrow(() -> new RuntimeException("URL not found"));
+
+        UrlMapping mapping = cache.get(shortCode);
+        if(mapping!=null){
+            if(mapping.getExpirationTime()!=null && LocalDateTime.now().isAfter(mapping.getExpirationTime())){
+                throw new RuntimeException("URL has Expired");
+            }
+            mapping.setClickCount(mapping.getClickCount()+1);
+            urlRepository.save(mapping);
+
+            return mapping.getOriginalUrl();
 
 
-        if(mapping.getExpirationTime()!=null && LocalDateTime.now().isAfter(mapping.getExpirationTime())){
-            throw new RuntimeException("URL has Expired");
+        }else{
+            UrlMapping url = urlRepository
+                    .findByShortCode(shortCode)
+                    .orElseThrow(() -> new RuntimeException("URL not found"));
+
+
+            if(url.getExpirationTime()!=null && LocalDateTime.now().isAfter(url.getExpirationTime())){
+                throw new RuntimeException("URL has Expired");
+            }
+
+            cache.put(shortCode,url);
+            url.setClickCount(url.getClickCount()+1);
+            urlRepository.save(url);
+
+            return url.getOriginalUrl();
         }
-        mapping.setClickCount(mapping.getClickCount()+1);
-        urlRepository.save(mapping);
-
-        return mapping.getOriginalUrl();
-
 
     }
     @Override
@@ -112,4 +129,6 @@ public class UrlServiceImpl implements UrlService{
 
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+    private Map<String,UrlMapping> cache = new HashMap<>();
+
 }
