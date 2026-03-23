@@ -1,6 +1,7 @@
 package com.backend.url.shortener.service;
 
 import com.backend.url.shortener.dto.AnalyticsResponse;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.backend.url.shortener.model.UrlMapping;
 import com.backend.url.shortener.repository.UrlRepository;
@@ -10,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -19,18 +18,22 @@ import java.util.Random;
 public class UrlServiceImpl implements UrlService{
     @Autowired
     private UrlRepository urlRepository;
+    @Autowired StringRedisTemplate redisTemplate;
     @Override
     public String getShortUrl(String shortCode) {
 
-        UrlMapping mapping = cache.get(shortCode);
-        if(mapping!=null){
+        String cachedUrl = redisTemplate.opsForValue().get(shortCode);
+        if(cachedUrl!=null){
+            UrlMapping mapping = urlRepository.findByShortCode(shortCode).get();
+
+
             if(mapping.getExpirationTime()!=null && LocalDateTime.now().isAfter(mapping.getExpirationTime())){
                 throw new RuntimeException("URL has Expired");
             }
             mapping.setClickCount(mapping.getClickCount()+1);
             urlRepository.save(mapping);
 
-            return mapping.getOriginalUrl();
+            return cachedUrl;
 
 
         }else{
@@ -43,7 +46,7 @@ public class UrlServiceImpl implements UrlService{
                 throw new RuntimeException("URL has Expired");
             }
 
-            cache.put(shortCode,url);
+            redisTemplate.opsForValue().set(shortCode,url.getOriginalUrl());
             url.setClickCount(url.getClickCount()+1);
             urlRepository.save(url);
 
@@ -129,6 +132,6 @@ public class UrlServiceImpl implements UrlService{
 
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
-    private Map<String,UrlMapping> cache = new HashMap<>();
+
 
 }
