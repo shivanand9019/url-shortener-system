@@ -21,8 +21,14 @@ public class UrlServiceImpl implements UrlService{
     @Autowired StringRedisTemplate redisTemplate;
     @Override
     public String getShortUrl(String shortCode) {
+        String cachedUrl = null;
 
-        String cachedUrl = redisTemplate.opsForValue().get(shortCode);
+        try {
+            cachedUrl = redisTemplate.opsForValue().get(shortCode);
+        } catch(Exception e){
+            System.out.println("Redis GET failed , falling back to DB");
+        }
+
         if(cachedUrl!=null){
             UrlMapping mapping = urlRepository.findByShortCode(shortCode).get();
 
@@ -32,6 +38,7 @@ public class UrlServiceImpl implements UrlService{
             }
             mapping.setClickCount(mapping.getClickCount()+1);
             urlRepository.save(mapping);
+
 
             return cachedUrl;
 
@@ -45,8 +52,11 @@ public class UrlServiceImpl implements UrlService{
             if(url.getExpirationTime()!=null && LocalDateTime.now().isAfter(url.getExpirationTime())){
                 throw new RuntimeException("URL has Expired");
             }
-
-            redisTemplate.opsForValue().set(shortCode,url.getOriginalUrl());
+            try {
+                redisTemplate.opsForValue().set(shortCode, url.getOriginalUrl());
+            } catch (Exception e) {
+               System.out.println("Redis SET failed,skipping cache");
+            }
             url.setClickCount(url.getClickCount()+1);
             urlRepository.save(url);
 
