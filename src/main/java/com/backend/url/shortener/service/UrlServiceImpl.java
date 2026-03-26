@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UrlServiceImpl implements UrlService{
@@ -20,9 +21,22 @@ public class UrlServiceImpl implements UrlService{
     private UrlRepository urlRepository;
     @Autowired StringRedisTemplate redisTemplate;
     @Override
-    public String getShortUrl(String shortCode) {
-        String cachedUrl = null;
+    public String getShortUrl(String shortCode,String clientIp) {
+        try {
+            String key = "rate-limit:" + clientIp;
+            String countStr = redisTemplate.opsForValue().get(key);
+            int count = (countStr == null) ? 0 : Integer.parseInt(countStr);
 
+            if (count >= 10) {
+                throw new RuntimeException("Too many requests");
+            }
+
+        redisTemplate.opsForValue().set(key,String.valueOf(count+1),60, TimeUnit.SECONDS);
+
+        }catch (Exception e){
+            System.out.println("Redis down,skipping rate limit");
+        }
+        String cachedUrl = null;
         try {
             cachedUrl = redisTemplate.opsForValue().get(shortCode);
         } catch(Exception e){
