@@ -1,76 +1,172 @@
-# URL Shortener Backend
+# URL Shortener System
 
-This project is a simple URL Shortener backend built using Spring Boot and PostgreSQL.  
-It allows users to generate a short URL for any long URL and retrieve the original URL using the short code.
+A simple URL Shortener built using **Spring Boot** and PostgreSQL.
 
-## Tech Stack
+This project allows users to generate short URLs, redirect to the original website, and view click analytics using a simple dashboard.
 
-- Java
-- Spring Boot
-- Spring Data JPA
-- PostgreSQL
-- Maven
-
-## Features
-
-- Generate short URLs from long URLs
-- Retrieve original URL using shortCode
-- REST API based architecture
-- Layered design (Controller → Service → Repository)
-
-## API Endpoints
-
-### Create Short URL
-
-POST /api/shorten
-
-Request Body:
-
-{
-"url": "https://google.com"
-}
-
-Response:
-
-http://localhost:8080/8591fd7e
+The purpose of this project was to understand how systems like Bitly work and to practice backend API development.
 
 ---
 
-### Redirect to Original URL
+## Live Demo
 
-GET /{shortCode}
+Deployed Application:
+
+https://url-shortener-system-avm1.onrender.com
 
 Example:
 
-http://localhost:8080/8591fd7e
+https://your-app-link.com
 
-Response:
+---
 
-Redirects to original URL.
+## Features
+
+✔ Generate short URLs from long links  
+✔ Redirect users using short codes   
+✔ Track click counts for each link  
+✔ Analytics API to view statistics  
+✔ Simple analytics dashboard  
+✔ Cloud deployment
+
+---
+
+## Screenshots
+
+Homepage
+
+![homepage.png](/screenshots/homepage.png)
+
+screenshots/homepage.png
+
+Example:
+
+"Homepage" 
+(screenshots/homepage.png)
+
+---
+
+Analytics Dashboard
+
+![analytics.png](screenshots/analytics.png)
+
+screenshots/analytics.png
+
+Example:
+
+"Analytics Dashboard" (screenshots/analytics.png)
+
+---
+
+### Tech Stack
+
+**Backend**
+
+- Java
+- Spring Boot
+
+**Database**
+
+- PostgreSQL
+
+**Frontend**
+
+- HTML
+- JavaScript
+
+**Deployment**
+
+- Render
+
+---
+
+## API Endpoints
+
+**1. Create Short URL**
+```
+POST /api/shorten
+
+Example request
+
+{
+"url": "https://example.com"
+}
+```
+---
+
+**2️. Redirect to Original URL**
+
+```
+GET /s/{shortCode}
+
+Example
+
+/s/abc123
+```
+---
+
+**3️. Get Analytics**
+
+```
+GET /analytics/{shortCode}
+
+Example response
+
+{
+"originalUrl": "https://example.com",
+"shortCode": "abc123",
+"clickCount": 5,
+"createdAt": "2026-03-16"
+}
+```
+---
 
 ## Project Structure
-controller/
-service/
-repository/
-model/
-dto/
-
+```
+src
+└─ main
+│   ├─ java
+│   ├─ controller
+│   ├─ service
+│   ├─ repository
+│   ├─ dto
+│   └─ model
+│   
+│
+│─ screenshots
+└─ resources
+    └─ static
+        ├─ index.html
+        ├─ analytics.html
+        └─ script.js
+```
+---
 
 ## Future Improvements
 
-- Click analytics for short URLs
-- Custom short codes
-- URL expiration support
+Possible improvements for this project:
 
-## How to Run
+• Custom short URLs   
+• URL expiration  
+• Redis caching for faster redirects  
+• Rate limiting  
+• Improved analytics dashboard
 
-1. Clone the repository
-2. Configure PostgreSQL in `application.properties`
-3. Run the Spring Boot application
+---
 
-mvn spring-boot:run
+ ## What I Learned
 
+While building this project I learned about:
+
+• Designing REST APIs using Spring Boot  
+• Working with PostgreSQL and JPA  
+• Handling HTTP redirects in web applications  
+• Building simple frontend dashboards using JavaScript  
+• Deploying backend applications to the cloud  
+• Structuring backend projects properly
+
+---
 
 ## Author
 
-Shivanand Madar
+Built as part of my backend development learning journey.

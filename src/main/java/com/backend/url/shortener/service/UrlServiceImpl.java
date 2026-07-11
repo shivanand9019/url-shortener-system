@@ -1,6 +1,7 @@
 package com.backend.url.shortener.service;
 
 import com.backend.url.shortener.dto.AnalyticsResponse;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.backend.url.shortener.model.UrlMapping;
 import com.backend.url.shortener.repository.UrlRepository;
@@ -11,34 +12,109 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UrlServiceImpl implements UrlService{
     @Autowired
     private UrlRepository urlRepository;
+    @Autowired StringRedisTemplate redisTemplate;
     @Override
-    public String getShortUrl(String shortCode) {
-        UrlMapping mapping = urlRepository
-                .findByShortCode(shortCode)
-                .orElseThrow(() -> new RuntimeException("URL not found"));
+    public String getShortUrl(String shortCode,String clientIp) {
+        try {
+            String key = "rate-limit:" + clientIp;
+            String countStr = redisTemplate.opsForValue().get(key);
+            int count = (countStr == null) ? 0 : Integer.parseInt(countStr);
 
-        mapping.setClickCount(mapping.getClickCount()+1);
-        urlRepository.save(mapping);
+            if (count >= 10) {
+                throw new RuntimeException("Too many requests");
+            }
 
-        return mapping.getOriginalUrl();
+        redisTemplate.opsForValue().set(key,String.valueOf(count+1),60, TimeUnit.SECONDS);
 
+        }catch (Exception e){
+            System.out.println("Redis down,skipping rate limit");
+        }
+        String cachedUrl = null;
+        try {
+            cachedUrl = redisTemplate.opsForValue().get(shortCode);
+        } catch(Exception e){
+            System.out.println("Redis GET failed , falling back to DB");
+        }
+
+        if(cachedUrl!=null){
+            UrlMapping mapping = urlRepository.findByShortCode(shortCode).get();
+
+
+            if(mapping.getExpirationTime()!=null && LocalDateTime.now().isAfter(mapping.getExpirationTime())){
+                throw new RuntimeException("URL has Expired");
+            }
+            mapping.setClickCount(mapping.getClickCount()+1);
+            urlRepository.save(mapping);
+
+
+            return cachedUrl;
+
+
+        }else{
+            UrlMapping url = urlRepository
+                    .findByShortCode(shortCode)
+                    .orElseThrow(() -> new RuntimeException("URL not found"));
+
+
+            if(url.getExpirationTime()!=null && LocalDateTime.now().isAfter(url.getExpirationTime())){
+                throw new RuntimeException("URL has Expired");
+            }
+            try {
+                redisTemplate.opsForValue().set(shortCode, url.getOriginalUrl());
+            } catch (Exception e) {
+               System.out.println("Redis SET failed,skipping cache");
+            }
+            url.setClickCount(url.getClickCount()+1);
+            urlRepository.save(url);
+
+            return url.getOriginalUrl();
+        }
 
     }
     @Override
-    public ResponseEntity<String> createShortUrl(String originalUrl) {
-        String shortCode = UUID.randomUUID().toString().substring(0,8);
+    public ResponseEntity<String> createShortUrl(String originalUrl,String customCode,LocalDateTime expirationTime) {
+
+        if(originalUrl==null || originalUrl.isBlank()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("URL cannot be empty");
+        }
+   String shortCode;
+
+
+   if(customCode!=null && !customCode.isBlank()) {
+       Optional<UrlMapping> existing = urlRepository.findByShortCode(customCode);
+       if (existing.isPresent()) {
+           return ResponseEntity
+                   .status(HttpStatus.BAD_REQUEST)
+                   .body("Custom short code already exists");
+
+       }
+
+       shortCode = customCode;
+   }
+   else{
+       do {
+           shortCode = generateShortCode();
+       }while(urlRepository.findByShortCode(shortCode).isPresent());
+   }
+
+
+
+
+
         UrlMapping urlMapping = new UrlMapping();
         urlMapping.setOriginalUrl(originalUrl);
         urlMapping.setShortCode(shortCode);
         urlMapping.setClickCount(0L);
         urlMapping.setCreatedAt(LocalDateTime.now());
-        urlMapping.setExpirationTime(LocalDateTime.now().plusDays(7));
+        urlMapping.setExpirationTime(expirationTime);
         urlRepository.save(urlMapping);
 
         String shortUrl =
@@ -49,13 +125,25 @@ public class UrlServiceImpl implements UrlService{
                         .toUriString();
 
 
+
+
         return new ResponseEntity<>(shortUrl,HttpStatus.CREATED);
     }
 
+    private String generateShortCode(){
+        String chars = "abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random = new Random();
+        StringBuilder shortCode  =new StringBuilder();
+        for(int i=0;i<6;i++){
+            shortCode.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return shortCode.toString();
+    }
     @Override
     public ResponseEntity<AnalyticsResponse> getAnalytics(String shortCode) {
 
-        UrlMapping urlMapping = urlRepository.findByShortCode(shortCode).orElseThrow( () -> new RuntimeException(String.valueOf(HttpStatus.NOT_FOUND)));
+        UrlMapping urlMapping = urlRepository.
+                findByShortCode(shortCode).orElseThrow( () -> new RuntimeException("URL not Found"));
 
         AnalyticsResponse response = new AnalyticsResponse();
         response.setOriginalUrl(urlMapping.getOriginalUrl());
@@ -68,4 +156,6 @@ public class UrlServiceImpl implements UrlService{
 
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+
+
 }
