@@ -1,5 +1,5 @@
 HELP.md
-!target/*.jar
+
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -31,6 +31,17 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Frontend (Vite/React) ###
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.vite/
+/frontend/.env
+/frontend/.env.local
+
+### Build output ###
+target/
+
 
 # dependencies
 node_modules/
