@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Service
 public interface UrlService {
 
-    public String getShortUrl(String shortCode);
+    public String getShortUrl(String shortCode,String clientIp);
 
 
     public ResponseEntity<String> createShortUrl(String originalUrl, String customCode, LocalDateTime expirationTime);

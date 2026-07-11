@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <title>URL Shortener</title>
     <style>
@@ -30,21 +30,14 @@
 
 <h2>URL Shortener</h2>
 
-<label for="urlInput">URL:</label><input id="urlInput" placeholder="Enter long URL">
-<label for="customCode">Custom Code:</label><input id="customCode" placeholder="Custom short code (optional)">
-
-<label for="expirationTime">ExpirationTime:</label>
-<input id="expirationTime" type="datetime-local" placeholder="Enter the Expiration Time">
-
+<input id="urlInput" placeholder="Enter long URL">
 <button onclick="shorten()">Generate</button>
-
 
 <p id="result"></p>
 
 <hr>
 
-<button onclick="window.location.href='/analytics.html'">Go to Analytics</button>
-
+<button onclick="window.location.href='/analytics.html'"> Go to Analytics</button>
 
 <script src="script.js"></script>
 </body>
