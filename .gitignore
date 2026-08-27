@@ -64,3 +64,6 @@ pnpm-debug.log*
 # OS files
 .DS_Store
 Thumbs.db
+
+
+/home/shivanand/urlshortener/src/main/resources/application.properties
